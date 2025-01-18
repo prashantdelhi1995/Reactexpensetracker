@@ -1,6 +1,6 @@
 import React,{useRef, useState} from 'react'
 import classes from './Signup.module.css';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 
 function Signup() {
@@ -72,6 +72,7 @@ function Signup() {
             <button type="submit" disabled={isLoading}>
               {isLoading ? "Signing Up..." : "Sign Up"}
             </button>
+            <Link to="/forgetpassword">Do you forget password?</Link>
             <button type="button" onClick={()=>{navigate("/login")}} > have an account?Login </button>
             </div>
             <div>

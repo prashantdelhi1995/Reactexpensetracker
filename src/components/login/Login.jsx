@@ -1,7 +1,7 @@
 
 import React,{useState} from 'react'
 import classes from "./Login.module.css"
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 function Login() {
     const navigate= useNavigate();
@@ -40,7 +40,7 @@ function Login() {
         }
         else{
             const data= await res.json()
-            throw new Error("soething went wrong ",data)
+            throw new Error(data.error.message || "Something went wrong.");
 
         }
     }
@@ -61,11 +61,12 @@ function Login() {
             <input onChange={handleEmailChange}  id="email" type="email" placeholder='please enter your email'></input>
             </div>
             <div>
-            <label id="password" >Email</label>
+            <label id="password" >Password</label>
             <input id="password" type="password" onChange={handlePasswordChange}  placeholder='please enter your password'></input>
             </div>
             <div>
                 <button type="submit">submit</button>
+                <Link to="/forgetpassword">Do you forget password?</Link>
                 <button type="button" onClick={()=>{navigate("/signup")}}>Dont have acoount? Signup</button>
             </div>
         </form>
