@@ -1,12 +1,12 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 const UserDetailsUpdate = () => {
   const nameRef = useRef();
   const urlRef = useRef();
+  const [imageSrc, setImageSrc] = useState(""); // State to handle the image source
 
   const autoGetData = async () => {
     const token = localStorage.getItem("JWTTOKEN");
-    console.log(token);
     try {
       const res = await fetch(
         "https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=AIzaSyAxNRatg_aaFZF_iZMzpdqW0HLlPws8RH8",
@@ -23,9 +23,9 @@ const UserDetailsUpdate = () => {
       if (res.ok) {
         const data = await res.json();
         data.users.forEach((element) => {
-          console.log(data.users);
           nameRef.current.value = element.displayName;
           urlRef.current.value = element.photoUrl;
+          setImageSrc(element.photoUrl); // Set the image source
         });
       } else {
         const data = await res.json();
@@ -42,7 +42,6 @@ const UserDetailsUpdate = () => {
 
   const updateHandler = async (event) => {
     event.preventDefault();
-    console.log("Updating...");
     const enteredName = nameRef.current.value;
     const enteredUrl = urlRef.current.value;
     const token = localStorage.getItem("JWTTOKEN");
@@ -65,15 +64,14 @@ const UserDetailsUpdate = () => {
       );
       if (res.ok) {
         const data = await res.json();
-        console.log(data);
-        alert("wohoo! your data saved ");
+        setImageSrc(enteredUrl); // Update the image source on successful update
+        alert("Wohoo! Your data has been saved.");
       } else {
         const data = await res.json();
-        console.log(data);
         alert(data.error.message);
       }
     } catch (error) {
-      console.log("during upating went wrong!!");
+      console.log("Something went wrong during the update!");
     }
   };
 
@@ -81,7 +79,7 @@ const UserDetailsUpdate = () => {
     <div>
       <div className="flex justify-between">
         <p className="text-xl text-slate-600 p-4 flex-initial">
-          Winners never quite, Quitters never win.
+          Winners never quit, Quitters never win.
         </p>
       </div>
       <hr className="border-gray-300 border-1"></hr>
@@ -90,18 +88,38 @@ const UserDetailsUpdate = () => {
         <form>
           <div className="text-xl py-5">Contact Details</div>
 
-          <div>
+          <div className="flex flex-col items-center">
+            {/* Circular Image */}
+            {imageSrc && (
+              <img
+                src={imageSrc}
+                alt="Profile"
+                className="w-24 h-24 rounded-full border-2 border-gray-300 mb-4"
+              />
+            )}
+
             <label htmlFor="name">Full Name:</label>
-            <input type="text" id="name" ref={nameRef} />
+            <input
+              type="text"
+              id="name"
+              ref={nameRef}
+              className="border p-2 rounded mb-4 w-full"
+            />
 
             <label htmlFor="url">Photo Profile URL:</label>
-            <input type="text" id="url" ref={urlRef} />
+            <input
+              type="text"
+              id="url"
+              ref={urlRef}
+              className="border p-2 rounded mb-4 w-full"
+              onChange={(e) => setImageSrc(e.target.value)} // Update image preview on input
+            />
           </div>
 
-          <div className="py-4">
+          <div className="py-4 text-center">
             <button
               onClick={updateHandler}
-              className="bg-red-400 text-white px-2 rounded-md"
+              className="bg-red-400 text-white px-4 py-2 rounded-md"
             >
               Update
             </button>

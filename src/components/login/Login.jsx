@@ -1,9 +1,11 @@
 
-import React,{useState} from 'react'
+import React,{useContext, useState} from 'react'
 import classes from "./Login.module.css"
+import ExpenseContext from '../store/expense-context';
 import { Link, useNavigate } from 'react-router-dom';
 
 function Login() {
+  const context= useContext(ExpenseContext)
     const navigate= useNavigate();
     const [email, setEmail]=useState('');
     const[password, setPassword]=useState('');
@@ -36,10 +38,12 @@ function Login() {
             localStorage.setItem("Email", data.email);
             setEmail("")
             setPassword("")
-            navigate("/welcome")
+            //navigate("/welcome")
+            context.login(true)
         }
         else{
             const data= await res.json()
+            alert("wrong credentials")
             throw new Error(data.error.message || "Something went wrong.");
 
         }

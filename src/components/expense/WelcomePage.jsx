@@ -1,11 +1,17 @@
-import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState, useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import ExpenseContext from "../store/expense-context";
 
 const WelcomePage = () => {
+  const context= useContext(ExpenseContext)
   const [checkVerified, setVerified] = useState(false);
+  const navigate= useNavigate()
 
   const handleOnLogOut= async()=>{
     localStorage.clear()
+    context.login(false)
+    //navigate("/login")
+
 
    }
   const autoVerifiedEmailCheck = async () => {
