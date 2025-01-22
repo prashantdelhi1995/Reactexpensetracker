@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useStat, useEffect, useState } from "react";
 import Card from "./Card";
 import ExpensesTotal from "./ExpensesTotal";
 import ExpensesForm from "./ExpensesForm";
@@ -6,6 +6,47 @@ import ExpensesList from "./ExpensesList";
 
 const Expenses = () => {
   const [items, setItems] = useState([]);
+  const [total, setTotal] = useState(0);
+  const userId=localStorage.getItem("userID")
+  const autoReload= async ()=>{
+    try{
+    const res=await fetch("https://expense-tracker-6095c-default-rtdb.firebaseio.com/expense/"+userId+".json")
+    if(!res.ok){
+      const err= await res.json()
+      throw new Error("something went wrong"+err.error)
+
+    }
+    const data=await res.json()
+    let arr = [];
+      let index = 0;
+      for (const key in data) {
+        arr[index] = data[key];
+        index++;
+      }
+      setItems([...arr]);
+    }
+    catch(err){
+      console.log(err)
+    }
+
+
+  }
+  useEffect(()=>{
+    autoReload()
+
+  },[])
+  let totalAmount = 0;
+  const totalCal = () => {
+    items.map((element) => {
+      totalAmount = totalAmount + Number(element.enteredMoney);
+    });
+    setTotal(totalAmount);
+  };
+
+  useEffect(() => {
+    totalCal();
+  }, [items]);
+
 
   // Handler to add new expense
   const itemsHandler = (data) => {
@@ -27,7 +68,7 @@ const Expenses = () => {
   return (
     <div>
       <Card>
-        <ExpensesTotal items={items} />
+        <ExpensesTotal totalAmount={total} />
       </Card>
       <Card>
         <ExpensesForm onClick={itemsHandler} />

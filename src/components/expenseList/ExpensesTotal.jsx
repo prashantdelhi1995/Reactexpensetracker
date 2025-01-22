@@ -1,10 +1,10 @@
 import React from 'react'
 
-const ExpensesTotal = () => {
+const ExpensesTotal = (props) => {
   return (
     <div>
-      <h1>Total Expenses</h1>
-      <label className="text-black">₹500</label>
+      <h1>Total Expenses </h1>
+      <label className="text-black">₹{props.totalAmount}</label>
     </div>
   )
 }
