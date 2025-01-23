@@ -17,10 +17,11 @@ const Expenses = () => {
 
     }
     const data=await res.json()
+    console.log("data=",data)
     let arr = [];
       let index = 0;
       for (const key in data) {
-        arr[index] = data[key];
+        arr[index] = {...data[key],id:key};
         index++;
       }
       setItems([...arr]);
@@ -53,16 +54,27 @@ const Expenses = () => {
     setItems((prevItems) => [...prevItems, data]);
   };
 
-  // Handler to edit an expense
-  const editItemHandler = (index) => {
-    const itemToEdit = items[index];
-    console.log("Edit item:", itemToEdit);
-    // Further implementation for editing logic
-  };
+
 
   // Handler to delete an expense
-  const deleteItemHandler = (index) => {
-    setItems((prevItems) => prevItems.filter((_, i) => i !== index));
+  const deleteItemHandler = async (id) => {
+    try {
+      const res = await fetch(
+        `https://expense-tracker-6095c-default-rtdb.firebaseio.com/expense/${userId}/${id}.json`,
+        {
+          method: "DELETE", // `DELETE` removes the data from Firebase
+        }
+      );
+  
+      if (!res.ok) {
+        throw new Error("Failed to delete expense");
+      }
+  
+      console.log("Expense deleted successfully");
+      setItems((prevItems) => prevItems.filter((item) => item.id !== id)); // Remove from local state
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -71,7 +83,7 @@ const Expenses = () => {
         <ExpensesTotal totalAmount={total} />
       </Card>
       <Card>
-        <ExpensesForm onClick={itemsHandler} />
+        <ExpensesForm onClick={itemsHandler} onReload={autoReload} />
       </Card>
       <Card>
         <table className="table-auto w-full border-collapse border border-gray-300">
@@ -85,8 +97,9 @@ const Expenses = () => {
           </thead>
           <ExpensesList
             expenses={items}
-            onEdit={editItemHandler}
+           
             onDelete={deleteItemHandler}
+           
           />
         </table>
       </Card>

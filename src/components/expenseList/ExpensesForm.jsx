@@ -1,9 +1,19 @@
-import React, { useRef } from "react";
+import React, { useRef, useContext, useEffect } from "react";
+import ExpenseContext from "../store/expense-context";
 
 const ExpensesForm = (props) => {
+  const { isEdit, editValues, editStateFunction, editable } = useContext(ExpenseContext);
   const moneyRef = useRef();
   const descriptionRef = useRef();
   const categoryRef = useRef();
+
+  useEffect(() => {
+    if (isEdit && editValues) {
+      moneyRef.current.value = editValues.enteredMoney;
+      descriptionRef.current.value = editValues.enteredDescription;
+      categoryRef.current.value = editValues.enteredCategory;
+    }
+  }, [isEdit, editValues]);
 
   const buttonHandler = async (event) => {
     event.preventDefault();
@@ -26,43 +36,62 @@ const ExpensesForm = (props) => {
   
     const userId = localStorage.getItem("userID");
   
+
     try {
-      const res = await fetch(
-        `https://expense-tracker-6095c-default-rtdb.firebaseio.com/expense/${userId}.json`,
-        {
-          method: "POST",
-          body: JSON.stringify(data),
-          headers: {
-            "Content-Type": "application/json",
-          },
+      if (isEdit) {
+        // Edit case: Send a PUT request
+        const res = await fetch(
+          `https://expense-tracker-6095c-default-rtdb.firebaseio.com/expense/${userId}/${editValues.id}.json`,
+          {
+            method: "PUT",
+            body: JSON.stringify(data),
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (!res.ok) {
+          throw new Error("Failed to update expense");
         }
-      );
-  
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(`Error: ${errorData.error || "Unknown error occurred"}`);
+        console.log("Expense updated successfully");
+      } else {
+        // Add new case: Send a POST request
+        const res = await fetch(
+          `https://expense-tracker-6095c-default-rtdb.firebaseio.com/expense/${userId}.json`,
+          {
+            method: "POST",
+            body: JSON.stringify(data),
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (!res.ok) {
+          throw new Error("Failed to add expense");
+        }
+        console.log("Expense added successfully");
       }
-  
-      const responseData = await res.json();
-      console.log("Data posted successfully:", responseData);
-  
-      
+     
+
+      // Reset form and context state
       moneyRef.current.value = "";
       descriptionRef.current.value = "";
       categoryRef.current.value = "";
-  
+      editStateFunction(false); 
       
-      props.onClick(data);
-  
+      
+      props.onReload(); 
     } catch (err) {
-      console.error("Something went wrong:", err.message);
+      console.error(err);
     }
   };
   
   return (
     <div>
       <form>
-        <h1>Add Expenses</h1>
+        <h1>{isEdit?"Edit Expense":"Add Expenses"}</h1>
 
         <label htmlFor="money">Money Spent</label>
         <input
@@ -90,7 +119,7 @@ const ExpensesForm = (props) => {
           <option value="Other">Other</option>
         </select>
 
-        <button onClick={buttonHandler}>Add</button>
+        <button onClick={buttonHandler}>{isEdit?"Edit":"Add"}</button>
       </form>
     </div>
   );

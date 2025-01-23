@@ -3,9 +3,18 @@ import ExpenseContext from './expense-context'
 
 function ContextProvider(props) {
     const [isLogin, setLogin] = useState(false);
+    const [isEdit, setEdit]= useState(false)
+    const [values, setValues] = useState("");
 
     const loginHandler = (value) => {
       setLogin(value);
+    };
+    const setEditingState = (value) => {
+      setEdit(value);
+    };
+    const EditHandler = (value) => {
+      setValues(value);
+      setEditingState(true);
     };
   
     useEffect(() => {
@@ -22,6 +31,11 @@ function ContextProvider(props) {
     const contextData = {
       isLogin: isLogin,
       login: loginHandler,
+      isEdit,
+      editValues: values,
+      editStateFunction: setEditingState,
+      editable: EditHandler,
+
     };
   
 
