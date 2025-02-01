@@ -1,8 +1,11 @@
 import React, { useRef, useContext, useEffect } from "react";
 import ExpenseContext from "../store/expense-context";
 
+
 const ExpensesForm = (props) => {
-  const { isEdit, editValues, editStateFunction, editable } = useContext(ExpenseContext);
+  const {isEditOn:isEdit , editValues, editStateFunction,forReload:autoReload } = useContext(ExpenseContext);
+  console.log("Edit values==",editValues)
+  console.log(isEdit,"isedit===")
   const moneyRef = useRef();
   const descriptionRef = useRef();
   const categoryRef = useRef();
@@ -18,14 +21,14 @@ const ExpensesForm = (props) => {
   const buttonHandler = async (event) => {
     event.preventDefault();
   
-    const enteredMoney = moneyRef.current.value.trim(); // Trim to avoid whitespace-only input
+    const enteredMoney = moneyRef.current.value.trim(); 
     const enteredDescription = descriptionRef.current.value.trim();
     const enteredCategory = categoryRef.current.value.trim();
   
     // Validate fields
     if (!enteredMoney || !enteredDescription || !enteredCategory) {
       alert("All fields are required. Please fill out the form completely.");
-      return; // Stop execution if validation fails
+      return; 
     }
   
     const data = {
@@ -39,7 +42,7 @@ const ExpensesForm = (props) => {
 
     try {
       if (isEdit) {
-        // Edit case: Send a PUT request
+        
         const res = await fetch(
           `https://expense-tracker-6095c-default-rtdb.firebaseio.com/expense/${userId}/${editValues.id}.json`,
           {
@@ -53,8 +56,9 @@ const ExpensesForm = (props) => {
 
         if (!res.ok) {
           throw new Error("Failed to update expense");
+
         }
-        console.log("Expense updated successfully");
+        alert("Expense updated successfully");
       } else {
         // Add new case: Send a POST request
         const res = await fetch(
@@ -82,7 +86,7 @@ const ExpensesForm = (props) => {
       editStateFunction(false); 
       
       
-      props.onReload(); 
+      autoReload()
     } catch (err) {
       console.error(err);
     }

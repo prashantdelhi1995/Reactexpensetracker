@@ -3,10 +3,13 @@ import ExpenseContext from "../store/expense-context";
 
 
 
+
+
 const ExpensesList = ({ expenses,  onDelete }) => {
+  
   const ctx= useContext(ExpenseContext)
   
-  console.log(expenses)
+  console.log("expenses",expenses)
  
   
   return (

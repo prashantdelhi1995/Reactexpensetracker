@@ -1,41 +1,46 @@
-import React, { useStat, useEffect, useState } from "react";
+import React, { useStat, useEffect, useState ,useContext } from "react";
 import Card from "./Card";
+import ExpenseContext from "../store/expense-context";
 import ExpensesTotal from "./ExpensesTotal";
 import ExpensesForm from "./ExpensesForm";
 import ExpensesList from "./ExpensesList";
+import { itemsAction } from "../reduxStore/fetchData";
+import { useDispatch, useSelector } from "react-redux";
 
 const Expenses = () => {
-  const [items, setItems] = useState([]);
+  const ctx=useContext(ExpenseContext)
+  const {forReload:autoReload}= ctx
+  const dispatch= useDispatch();
+  const items= useSelector((state) => state.fetchData.itemList);
+  console.log("items=",items)
+  
   const [total, setTotal] = useState(0);
   const userId=localStorage.getItem("userID")
-  const autoReload= async ()=>{
-    try{
-    const res=await fetch("https://expense-tracker-6095c-default-rtdb.firebaseio.com/expense/"+userId+".json")
-    if(!res.ok){
-      const err= await res.json()
-      throw new Error("something went wrong"+err.error)
+  // const autoReload= async ()=>{
+  //   try{
+  //   const res=await fetch("https://expense-tracker-6095c-default-rtdb.firebaseio.com/expense/"+userId+".json")
+  //   if(!res.ok){
+  //     const err= await res.json()
+  //     throw new Error("something went wrong"+err.error)
 
-    }
-    const data=await res.json()
-    console.log("data=",data)
-    let arr = [];
-      let index = 0;
-      for (const key in data) {
-        arr[index] = {...data[key],id:key};
-        index++;
-      }
-      setItems([...arr]);
-    }
-    catch(err){
-      console.log(err)
-    }
+  //   }
+  //   const data=await res.json()
+  //   console.log("data=",data)
+  //   let arr = [];
+  //     let index = 0;
+  //     for (const key in data) {
+  //       arr[index] = {...data[key],id:key};
+  //       index++;
+  //     }
+  //     setItems([...arr]);
+  //   }
+  //   catch(err){
+  //     console.log(err)
+  //   }
 
 
-  }
-  useEffect(()=>{
-    autoReload()
-
-  },[])
+  // }
+ 
   let totalAmount = 0;
   const totalCal = () => {
     items.map((element) => {
@@ -51,7 +56,7 @@ const Expenses = () => {
 
   // Handler to add new expense
   const itemsHandler = (data) => {
-    setItems((prevItems) => [...prevItems, data]);
+    autoReload()
   };
 
 
@@ -62,7 +67,7 @@ const Expenses = () => {
       const res = await fetch(
         `https://expense-tracker-6095c-default-rtdb.firebaseio.com/expense/${userId}/${id}.json`,
         {
-          method: "DELETE", // `DELETE` removes the data from Firebase
+          method: "DELETE",
         }
       );
   
@@ -70,8 +75,8 @@ const Expenses = () => {
         throw new Error("Failed to delete expense");
       }
   
-      console.log("Expense deleted successfully");
-      setItems((prevItems) => prevItems.filter((item) => item.id !== id)); // Remove from local state
+      alert("Expense deleted successfully");
+      autoReload()
     } catch (err) {
       console.error(err);
     }
@@ -83,7 +88,7 @@ const Expenses = () => {
         <ExpensesTotal totalAmount={total} />
       </Card>
       <Card>
-        <ExpensesForm onClick={itemsHandler} onReload={autoReload} />
+        <ExpensesForm onClick={itemsHandler} />
       </Card>
       <Card>
         <table className="table-auto w-full border-collapse border border-gray-300">
